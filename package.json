@@ -2,9 +2,13 @@
   "name": "nurlabsserver",
   "version": "1.0.0",
   "description": "Nurlabs",
+  "engines": {
+    "node": "14.x"
+  },
   "main": "./backend/server.js",
   "scripts": {
-    "test": "node ./test.js"
+    "start": "node ./backend/server.js",
+    "test": "node test.js"
   },
   "keywords": [
     "nurlabs"
