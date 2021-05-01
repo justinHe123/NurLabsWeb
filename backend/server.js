@@ -17,10 +17,47 @@ const PORT = process.env.PORT || 5000
 const bodyParser = require('body-parser')
 app.use(bodyParser.text())
 
+const nodemailer = require('nodemailer')
+const fs = require('fs')
+
+// TODO: boilerplate confirmation email
+let transport = nodemailer.createTransport({
+  host: 'smtp.mailtrap.io',
+  port: 2525,
+  auth: {
+    user: '03e042c4bb72af',
+    pass: '8c44c93d49411e'
+  }
+})
+
+const message = {
+  from: 'elonmusk@tesla.com', // Sender address
+  to: 'test@test.com',         // List of recipients
+  subject: 'Your feedback was submitted!', // Subject line
+  html: '<h1>Thanks for the feedback!</h1>', 
+};
+
+const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+
+app.get('/contact/submit', 
+  (req, res) => {
+  // const sender = req.body.email;
+  
+  // send confirmation email
+  transport.sendMail(message, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+    } else {
+      console.log(data);
+      res.sendStatus(200);
+    }
+  })
+})
+
 app.post('/email/submit',
         (req, res) => {
   // TODO: check for a valid email
-  const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
   if(re.test(email)) {
     Emails.create({email: req.body.email})
     res.sendStatus(201)
