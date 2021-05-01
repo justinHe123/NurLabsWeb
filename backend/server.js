@@ -19,40 +19,51 @@ app.use(bodyParser.text())
 
 const nodemailer = require('nodemailer')
 const fs = require('fs')
+const { promisify } = require('util')
+const readFile = promisify(fs.readFile);
 
-// TODO: boilerplate confirmation email
+// TODO: temporary email transport using mailtrap
 let transport = nodemailer.createTransport({
   host: 'smtp.mailtrap.io',
   port: 2525,
   auth: {
     user: '03e042c4bb72af',
-    pass: '8c44c93d49411e'
+    pass: '8c44c93d49411e',
   }
 })
 
-const message = {
-  from: 'elonmusk@tesla.com', // Sender address
-  to: 'test@test.com',         // List of recipients
-  subject: 'Your feedback was submitted!', // Subject line
-  html: '<h1>Thanks for the feedback!</h1>', 
-};
-
 const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+const NURLABS_EMAIL = 'elon@musk.com';
 
-app.get('/contact/submit', 
-  (req, res) => {
-  // const sender = req.body.email;
-  
+const sendConfirmation = async (recipient) => {
+  const message = {
+    from: NURLABS_EMAIL, // Sender address
+    to: recipient,         // List of recipients
+    subject: 'Your feedback was submitted!', // Subject line
+    html: await readFile('./templates/confirm.html', 'utf8'), 
+  };
+
   // send confirmation email
   transport.sendMail(message, (err, data) => {
     if (err) {
       console.log(err);
-      res.sendStatus(500);
     } else {
       console.log(data);
-      res.sendStatus(200);
     }
   })
+}
+
+app.get('/contact/submit', 
+  (req, res) => {
+  // const sender = req.body.email;
+  const sender = 'test@test.com';
+  const subject = req.body.subject;
+  const text = req.body.text;
+  sendConfirmation(sender);
+
+  console.log(process.cwd());
+  // TODO: send feedback email to nurlabs
+  res.sendStatus(200);
 })
 
 app.post('/email/submit',
