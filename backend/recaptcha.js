@@ -2,7 +2,7 @@
 // verify at https://www.google.com/recaptcha/api/siteverify
 
 // middleware for validating recaptcha
-const verfiyRecaptcha = (req, res, next) => {
+const verfiyRecaptcha = async (req, res, next) => {
     const url = 'https://www.google.com/recaptcha/api/siteverify'
     const options = {
         method: 'POST',
@@ -16,19 +16,15 @@ const verfiyRecaptcha = (req, res, next) => {
         })
     }
     // query validation api
-    fetch(url, options)
-        .then(res => res.json())
-        .then(res => {
-            // go next if success, otherwise end the request
-            if (res.success) {
-                next()
-            }
-            else return res.status(500).send("unverified recaptcha");
-        })
-        .catch(err => {
-            return res.status(500).send("unverified recaptcha");
-        })
-
+    try {
+        const response = await fetch(url, options)
+        const data = await response.json()
+        if (data.success) next();
+        else return res.status(500).send("unverified recaptcha")
+    }
+    catch (error) {
+        return res.status(500).send("unverified recaptcha")
+    }
 }
 
 export default verfiyRecaptcha;
