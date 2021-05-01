@@ -13,6 +13,22 @@ const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
+// Setting up the body parser - will move if this should go elsewhere
+const bodyParser = require('body-parser')
+app.use(bodyParser.text())
+
+app.post('/email/submit',
+        (req, res) => {
+  // TODO: check for a valid email
+  const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  if(re.test(email)) {
+    Emails.create({email: req.body.email})
+    res.sendStatus(201)
+  } else {
+    res.sendStatus(400)
+  }
+})
+
 // Filler endpoints
 app
   .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
