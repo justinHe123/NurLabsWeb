@@ -1,21 +1,14 @@
-// const express = require('express')
-
-// // https://developers.google.com/recaptcha/docs/verify
-// // https://www.google.com/recaptcha/api/siteverify
-
-// const app = express();
-
-// app.set('etag', false)
-
 // app.get('/', (req, res) => res.render('./test'))
 const express = require('express')
+const { Emails } = require("./tables.js")
+
 const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
 const cors = require('cors');
 app.use(cors());
-app.use(express.json()) // body-parser depreciated, use this instead :o
+app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
 const nodemailer = require('nodemailer')
 const fs = require('fs')
@@ -67,18 +60,22 @@ app.post('/contact/submit',
   }
 })
 
-app.post('/email/submit',
-        (req, res) => {
+// Email endpoint
+app
+  .post('/email/submit', submitEmail)
+
+// Temp place for submit email function
+const submitEmail = (req, res) => {
   // TODO: check for a valid email
   if(re.test(email)) {
     Emails.create({email: req.body.email})
-    res.sendStatus(201)
+    return res.sendStatus(201)
   } else {
-    res.sendStatus(400)
+    return res.sendStatus(400)
   }
-})
+}
 
 // Filler endpoints
-app
-  .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+app.get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
+
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
