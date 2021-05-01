@@ -13,9 +13,9 @@ const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
-// Setting up the body parser - will move if this should go elsewhere
-const bodyParser = require('body-parser')
-app.use(bodyParser.text())
+const cors = require('cors');
+app.use(cors());
+app.use(express.json()) // body-parser depreciated, use this instead :o
 
 const nodemailer = require('nodemailer')
 const fs = require('fs')
@@ -33,7 +33,7 @@ let transport = nodemailer.createTransport({
 })
 
 const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const NURLABS_EMAIL = 'elon@musk.com';
+const NURLABS_EMAIL = 'noreply@nurlabs.com';
 
 const sendConfirmation = async (recipient) => {
   const message = {
@@ -53,17 +53,18 @@ const sendConfirmation = async (recipient) => {
   })
 }
 
-app.get('/contact/submit', 
+app.post('/contact/submit', 
   (req, res) => {
-  // const sender = req.body.email;
-  const sender = 'test@test.com';
-  const subject = req.body.subject;
-  const text = req.body.text;
-  sendConfirmation(sender);
+  console.log(req.body);
+  const { email, subject, text} = req.body;
 
-  console.log(process.cwd());
-  // TODO: send feedback email to nurlabs
-  res.sendStatus(200);
+  if (!re.test(email)) {
+    res.sendStatus(400);
+  } else {
+    sendConfirmation(email);
+    // TODO: send feedback email to nurlabs
+    res.sendStatus(200);
+  }
 })
 
 app.post('/email/submit',
