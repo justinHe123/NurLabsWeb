@@ -25,7 +25,7 @@ const testConnection = async () => {
   console.log("Successfully Connected");
 };
 
-// testConnection()
+testConnection()
 
 const Emails = sequelize.define("emails", {
   email: {
@@ -37,3 +37,7 @@ const Emails = sequelize.define("emails", {
   //     defaultValue: false
   // }
 });
+
+module.exports = {
+    Emails
+}
