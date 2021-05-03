@@ -14,3 +14,6 @@ const Emails = sequelize.define('emails', {
     // }
 })
 
+module.exports = {
+    Emails
+}
