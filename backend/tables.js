@@ -27,7 +27,7 @@ const testConnection = async () => {
 
 testConnection()
 
-const Emails = sequelize.define("emails", {
+const Emails = sequelize.define("Emails", {
   email: {
     type: DataTypes.STRING,
     primaryKey: true,
@@ -37,6 +37,8 @@ const Emails = sequelize.define("emails", {
   //     defaultValue: false
   // }
 });
+
+Emails.sync()
 
 module.exports = {
     Emails
