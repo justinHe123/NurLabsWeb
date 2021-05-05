@@ -38,11 +38,7 @@ const Emails = sequelize.define("Emails", {
   // }
 });
 
-Emails.sync().then(()=>{
-    console.log('New table created');
-    }).finally(()=>{
-    sequelize.close()        
-})
+Emails.sync()
 
 module.exports = {
     Emails
