@@ -74,7 +74,7 @@ app
 
 // Email endpoint
 app
-  .post('/email/submit', submitEmail)
+  .post('/email/submit', verifyRecaptcha, submitEmail)
 
 // Filler endpoints
 app
