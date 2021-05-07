@@ -5,7 +5,7 @@ require('dotenv').config()
 const sequelize = new Sequelize(
   `${process.env.DB}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
   {
-    dialect: "postgres",
+    dialect: "postgresql",
     dialectOptions: {
       ssl: {
         // Heroku requires us to use SSL. https://devcenter.heroku.com/changelog-items/2035
