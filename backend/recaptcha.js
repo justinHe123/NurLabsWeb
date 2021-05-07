@@ -11,7 +11,7 @@ const verfiyRecaptcha = async (req, res, next) => {
             'Content-Type': 'application/json;charset=UTF-8'
         }),
         body: JSON.stringify({
-            secret: process.env.SECRET,
+            secret: process.env.RECAPTCHA_SECRET_KEY,
             resonse: req.headers.token,
         })
     }
@@ -20,10 +20,10 @@ const verfiyRecaptcha = async (req, res, next) => {
         const response = await fetch(url, options)
         const data = await response.json()
         if (data.success) next();
-        else return res.status(500).send("unverified recaptcha")
+        else return res.status(401).send("unverified recaptcha")
     }
     catch (error) {
-        return res.status(500).send("unverified recaptcha")
+        return res.status(401).send("unverified recaptcha")
     }
 }
 

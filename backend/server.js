@@ -1,4 +1,5 @@
-// app.get('/', (req, res) => res.render('./test'))
+//////////////// SETUP ////////////////
+
 const express = require('express')
 const { Emails } = require("./tables.js")
 
@@ -15,6 +16,72 @@ const fs = require('fs')
 const { promisify } = require('util')
 const readFile = promisify(fs.readFile);
 
+//////////////// ENDPOINT FUNCTIONS ////////////////
+
+const submitContact = (req, res) => {
+  try {
+    console.log(req.body);
+    const { email, subject, text} = req.body;
+
+    if (validEmail(email)) {
+      sendConfirmation(email);
+      // TODO: send feedback email to nurlabs
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(400);
+    }
+  }
+  catch (error) {
+    return res.sendStatus(500)
+  }
+}
+
+const submitEmail = async (req, res) => {
+  try {
+    if(validEmail(req.body.email)) {
+      await Emails.create({email: req.body.email})
+      return res.sendStatus(201)
+    } else {
+      return res.sendStatus(400)
+    }
+  } 
+  catch (error) {
+    return res.sendStatus(500)
+  }
+}
+
+const getEmails = async (req, res) => {
+  try{  
+    const emails = await Emails.findAll()
+    return res.status(200).json({ emails })
+  }
+  catch (err) {
+    return res.sendStatus(500)
+  }
+}
+
+//////////////// ENDPOINTS ////////////////
+
+// Contact endpoint
+app
+  .post('/contact/submit', submitContact)
+
+// Email endpoint
+app
+  .post('/email/submit', submitEmail)
+
+// Filler endpoints
+app
+  .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
+
+// Testing endpoints (expose DB)
+app
+  .get('/email', getEmails)
+
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+
+//////////////// AUXILIARY FUNCTIONS ////////////////
+
 // TODO: temporary email transport using mailtrap
 let transport = nodemailer.createTransport({
   host: 'smtp.mailtrap.io',
@@ -27,6 +94,10 @@ let transport = nodemailer.createTransport({
 
 const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const NURLABS_EMAIL = 'noreply@nurlabs.com';
+
+const validEmail = (email) => {
+  return re.test(email);
+}
 
 const sendConfirmation = async (recipient) => {
   const message = {
@@ -45,37 +116,3 @@ const sendConfirmation = async (recipient) => {
     }
   })
 }
-
-app.post('/contact/submit', 
-  (req, res) => {
-  console.log(req.body);
-  const { email, subject, text} = req.body;
-
-  if (!re.test(email)) {
-    res.sendStatus(400);
-  } else {
-    sendConfirmation(email);
-    // TODO: send feedback email to nurlabs
-    res.sendStatus(200);
-  }
-})
-
-// Email endpoint
-app
-  .post('/email/submit', submitEmail)
-
-// Temp place for submit email function
-const submitEmail = (req, res) => {
-  // TODO: check for a valid email
-  if(re.test(email)) {
-    Emails.create({email: req.body.email})
-    return res.sendStatus(201)
-  } else {
-    return res.sendStatus(400)
-  }
-}
-
-// Filler endpoints
-app.get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
-
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
