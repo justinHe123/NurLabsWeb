@@ -1,19 +1,20 @@
 //////////////// SETUP ////////////////
 
 const express = require('express')
+const cors = require('cors');
+const nodemailer = require('nodemailer')
+const fs = require('fs')
+const { promisify } = require('util')
 const { Emails } = require("./tables.js")
+const verifyRecaptcha = require("./recaptcha.js")
 
 const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
-const cors = require('cors');
 app.use(cors());
 app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
-const nodemailer = require('nodemailer')
-const fs = require('fs')
-const { promisify } = require('util')
 const readFile = promisify(fs.readFile);
 
 //////////////// ENDPOINT FUNCTIONS ////////////////
@@ -55,7 +56,7 @@ const getEmails = async (req, res) => {
     const emails = await Emails.findAll()
     return res.status(200).json({ emails })
   }
-  catch (err) {
+  catch (error) {
     return res.sendStatus(500)
   }
 }
@@ -64,7 +65,7 @@ const getEmails = async (req, res) => {
 
 // Contact endpoint
 app
-  .post('/contact/submit', submitContact)
+  .post('/contact/submit', verifyRecaptcha, submitContact)
 
 // Email endpoint
 app
@@ -73,6 +74,10 @@ app
 // Filler endpoints
 app
   .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
+
+// Testing recaptcha
+// app
+//   .post('/recaptcha', verifyRecaptcha)
 
 // Testing endpoints (expose DB)
 app
