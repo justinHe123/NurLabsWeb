@@ -8,11 +8,16 @@ const { promisify } = require('util')
 const { Emails } = require("./tables.js")
 const verifyRecaptcha = require("./recaptcha.js")
 
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://www.nurlabs.net/'],
+  optionsSuccessStatus: 200 
+}
+
 const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
 const readFile = promisify(fs.readFile);
