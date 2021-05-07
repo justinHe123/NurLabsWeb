@@ -13,6 +13,8 @@ app.use(express.json()) // bodyParser is depreciated, use this instead :o
 const nodemailer = require('nodemailer')
 const fs = require('fs')
 const { promisify } = require('util')
+const { verfiyRecaptcha } = require('./recaptcha.js')
+const { nextTick } = require('process')
 const readFile = promisify(fs.readFile);
 
 // TODO: temporary email transport using mailtrap
@@ -33,7 +35,7 @@ const sendConfirmation = async (recipient) => {
     from: NURLABS_EMAIL, // Sender address
     to: recipient,         // List of recipients
     subject: 'Your feedback was submitted!', // Subject line
-    html: await readFile('./templates/confirm.html', 'utf8'), 
+    html: await readFile('./templates/confirm.html', 'utf8'),
   };
 
   // send confirmation email
@@ -46,36 +48,34 @@ const sendConfirmation = async (recipient) => {
   })
 }
 
-app.post('/contact/submit', 
-  (req, res) => {
-  console.log(req.body);
-  const { email, subject, text} = req.body;
+app.post('/contact/submit', verfiyRecaptcha, (req, res) => {
+    const { email, subject, text } = req.body;
 
-  if (!re.test(email)) {
-    res.sendStatus(400);
-  } else {
-    sendConfirmation(email);
-    // TODO: send feedback email to nurlabs
-    res.sendStatus(200);
-  }
-})
-
-// Email endpoint
-app
-  .post('/email/submit', submitEmail)
+    if (!re.test(email)) {
+      res.sendStatus(400);
+    } else {
+      sendConfirmation(email);
+      // TODO: send feedback email to nurlabs
+      res.sendStatus(200);
+    }
+  });
 
 // Temp place for submit email function
 const submitEmail = (req, res) => {
   // TODO: check for a valid email
-  if(re.test(email)) {
-    Emails.create({email: req.body.email})
+  if (re.test(req.body.email)) {
+    Emails.create({ email: req.body.email })
     return res.sendStatus(201)
   } else {
     return res.sendStatus(400)
   }
 }
 
-// Filler endpoints
-app.get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
+// Email endpoint
+app
+  .post('/email/submit', verfiyRecaptcha, submitEmail);
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+// Filler endpoints
+app.get('/', (req, res) => res.sendFile('test.html', { root: __dirname }))
+
+app.listen(PORT, () => console.log(`Listening on ${PORT}`))
