@@ -56,6 +56,21 @@ const submitEmail = async (req, res) => {
   }
 }
 
+const unsubscribeEmail = async (req, res) => {
+  try {
+    if(validEmail(req.body.email)) {
+      const email = await Emails.findOne({email: req.body.email})
+      await email.destroy()
+      return res.sendStatus(201)
+    } else {
+      return res.sendStatus(400)
+    }
+  } 
+  catch (error) {
+    return res.sendStatus(500)
+  }
+}
+
 const getEmails = async (req, res) => {
   try{  
     const emails = await Emails.findAll()
@@ -72,9 +87,12 @@ const getEmails = async (req, res) => {
 app
   .post('/contact/submit', verifyRecaptcha, submitContact)
 
-// Email endpoint
+// Email endpoints
 app
   .post('/email/submit', verifyRecaptcha, submitEmail)
+
+app
+  .post('/email/unsubscribe', verifyRecaptcha, unsubscribeEmail)
 
 // Filler endpoints
 app
