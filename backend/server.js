@@ -7,6 +7,7 @@ const fs = require('fs')
 const { promisify } = require('util')
 const { Emails } = require("./tables.js")
 const verifyRecaptcha = require("./recaptcha.js")
+const generateRandKey = require("./randkey.js")
 
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://www.nurlabs.net/'],

@@ -23,3 +23,5 @@ const generateRandKey = (email) => {
   const key = hash.digest('hex');
   return key;
 }
+
+module.exports = generateRandKey;
