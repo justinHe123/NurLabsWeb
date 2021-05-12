@@ -29,6 +29,7 @@ const testConnection = async () => {
 
 testConnection()
 
+// TODO: Change primary key of DB to random key
 const Emails = sequelize.define("Emails", {
   email: {
     type: DataTypes.STRING,

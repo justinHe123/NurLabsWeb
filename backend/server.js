@@ -42,6 +42,7 @@ const submitContact = (req, res) => {
   }
 }
 
+// TODO: Change to create email with random key
 const submitEmail = async (req, res) => {
   try {
     if(validEmail(req.body.email)) {
@@ -56,6 +57,7 @@ const submitEmail = async (req, res) => {
   }
 }
 
+// TODO: Change from accepting emails to accepting email key
 const unsubscribeEmail = async (req, res) => {
   try {
     if(validEmail(req.body.email)) {
