@@ -1,8 +1,8 @@
 const { Sequelize, DataTypes } = require("sequelize");
 require('dotenv').config()
 
-// const dburl = `${process.env.DB}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
-const dburl = process.env.DATABASE_URL;
+const dburl = `${process.env.DB}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+// const dburl = process.env.DATABASE_URL;
 
 const sequelize = new Sequelize(
   dburl,
@@ -29,17 +29,25 @@ const testConnection = async () => {
 
 testConnection()
 
-// TODO: Change primary key of DB to random key
 const Emails = sequelize.define("Emails", {
-  email: {
-    type: DataTypes.STRING,
-    primaryKey: true,
+  uuid: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    allowNull: false,
+    primaryKey: true
   },
-  // verified: {
-  //     type: DataTypes.BOOLEAN,
-  //     defaultValue: false
-  // }
-});
+  email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+  }},
+  {
+    indexes: [{
+      unique: true,
+      fields: ['email']
+    }]
+  }
+);
 
 Emails.sync()
 

@@ -30,44 +30,37 @@ const submitContact = (req, res) => {
     console.log(req.body);
     const { email, subject, text} = req.body;
 
-    if (validEmail(email)) {
-      sendConfirmation(email);
-      // TODO: send feedback email to nurlabs
-      res.sendStatus(200);
-    } else {
-      res.sendStatus(400);
-    }
+    if (!validEmail(email)) res.sendStatus(400)
+    sendConfirmation(email)
+    // TODO: send feedback email to nurlabs
+    res.sendStatus(200)
+
   }
   catch (error) {
     return res.sendStatus(500)
   }
 }
 
-// TODO: Change to create email with random key
 const submitEmail = async (req, res) => {
   try {
-    if(validEmail(req.body.email)) {
-      await Emails.create({email: req.body.email})
-      return res.sendStatus(201)
-    } else {
-      return res.sendStatus(400)
-    }
+    if(!validEmail(req.body.email)) return res.sendStatus(400)
+    await Emails.create({email: req.body.email})
+    return res.sendStatus(201)
   } 
   catch (error) {
     return res.sendStatus(500)
   }
 }
 
-// TODO: Change from accepting emails to accepting email key
 const unsubscribeEmail = async (req, res) => {
   try {
-    if(validEmail(req.body.email)) {
-      const email = await Emails.findOne({email: req.body.email})
-      await email.destroy()
-      return res.sendStatus(201)
-    } else {
-      return res.sendStatus(400)
-    }
+    // TODO: Instead of doing this, use schema validation
+    if(!req.body.uuid) return res.sendStatus(400)
+    console.log(req.body.uuid)
+    const email = await Emails.findOne({where: {uuid: req.body.uuid}})
+    if (email === null) return res.sendStatus(404)
+    await email.destroy()
+    return res.sendStatus(200)
   } 
   catch (error) {
     return res.sendStatus(500)
@@ -95,7 +88,7 @@ app
   .post('/email/submit', verifyRecaptcha, submitEmail)
 
 app
-  .post('/email/unsubscribe', verifyRecaptcha, unsubscribeEmail)
+  .post('/email/unsubscribe', /* verifyRecaptcha, */ unsubscribeEmail)
 
 // Filler endpoints
 app
