@@ -1,8 +1,9 @@
 const { Sequelize, DataTypes } = require("sequelize");
 require('dotenv').config()
 
-if (process.env.DATABASE_URL) const dburl = process.env.DATABASE_URL;
-else const dburl = `${process.env.DB}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+let dburl;
+if (process.env.DATABASE_URL) dburl = process.env.DATABASE_URL;
+else dburl = `${process.env.DB}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
 
 const sequelize = new Sequelize(
