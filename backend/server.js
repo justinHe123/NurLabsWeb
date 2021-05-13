@@ -7,7 +7,6 @@ const fs = require('fs')
 const { promisify } = require('util')
 const { Emails } = require("./tables.js")
 const verifyRecaptcha = require("./recaptcha.js")
-const generateRandKey = require("./randkey.js")
 
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://www.nurlabs.net/'],
@@ -56,7 +55,6 @@ const unsubscribeEmail = async (req, res) => {
   try {
     // TODO: Instead of doing this, use schema validation
     if(!req.body.uuid) return res.sendStatus(400)
-    console.log(req.body.uuid)
     const email = await Emails.findByPk(req.body.uuid)
     if (email === null) return res.sendStatus(404)
     await email.destroy()
