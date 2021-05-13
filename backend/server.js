@@ -57,7 +57,7 @@ const unsubscribeEmail = async (req, res) => {
     // TODO: Instead of doing this, use schema validation
     if(!req.body.uuid) return res.sendStatus(400)
     console.log(req.body.uuid)
-    const email = await Emails.findOne({where: {uuid: req.body.uuid}})
+    const email = await Emails.findByPk(req.body.uuid)
     if (email === null) return res.sendStatus(404)
     await email.destroy()
     return res.sendStatus(200)
