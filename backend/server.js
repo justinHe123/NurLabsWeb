@@ -54,9 +54,9 @@ const submitEmail = async (req, res) => {
 const unsubscribeEmail = async (req, res) => {
   try {
     // TODO: Instead of doing this, use schema validation
-    if(!req.body.uuid) return res.sendStatus(400)
+    if (!req.body.uuid || !req.body.email) return res.sendStatus(400)
     const email = await Emails.findByPk(req.body.uuid)
-    if (email === null) return res.sendStatus(404)
+    if (email === null || email.email !== req.body.uuid) return res.sendStatus(404)
     await email.destroy()
     return res.sendStatus(200)
   } 
