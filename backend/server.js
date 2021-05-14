@@ -67,7 +67,7 @@ const unsubscribeEmail = async (req, res) => {
 
 const checkEmail = async (req,res) => {
   try{
-    if (!req.body.uuid | !req.body.email) return res.sendStatus(400)
+    if (!req.body.uuid || !req.body.email) return res.sendStatus(400)
     const email = await Emails.findByPk(req.body.uuid)
     if (email === null || email.email !== req.body.uuid) return res.sendStatus(404)
     return res.sendStatus(200)
@@ -96,9 +96,10 @@ app
 // Email endpoints
 app
   .post('/email/submit', verifyRecaptcha, submitEmail)
-
 app
   .post('/email/unsubscribe', /* verifyRecaptcha, */ unsubscribeEmail)
+app
+  .get('/email/check', checkEmail)
 
 // Filler endpoints
 app
