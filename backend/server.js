@@ -67,9 +67,9 @@ const unsubscribeEmail = async (req, res) => {
 
 const checkEmail = async (req,res) => {
   try{
-    if (!req.body.uuid || !req.body.email) return res.sendStatus(400)
-    const email = await Emails.findByPk(req.body.uuid)
-    if (email === null || email.email !== req.body.uuid) return res.sendStatus(404)
+    if (!req.query.uuid || !req.query.email) return res.sendStatus(400)
+    const email = await Emails.findByPk(req.query.uuid)
+    if (email === null || email.email !== req.query.uuid) return res.sendStatus(404)
     return res.sendStatus(200)
   } 
   catch (error) {
