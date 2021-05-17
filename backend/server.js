@@ -18,8 +18,7 @@ const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
-// app.use(cors(corsOptions));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
 const readFile = promisify(fs.readFile);
@@ -29,41 +28,39 @@ const readFile = promisify(fs.readFile);
 const submitContact = (req, res) => {
   try {
     console.log(req.body);
-    const { email, subject, text } = req.body;
+    const { email } = req.body;
 
-    if (!validEmail(email)) res.sendStatus(400)
+    if (!validEmail(email)) res.sendStatus(400);
     sendConfirmation(email);
-    // TODO: send feedback email to nurlabs
     sendNurlabsFeedback(req.body);
-    res.sendStatus(200)
-
+    res.sendStatus(200);
   }
   catch (error) {
-    return res.sendStatus(500)
+    return res.sendStatus(500);
   }
 }
 
 const submitEmail = async (req, res) => {
   try {
     if (validEmail(req.body.email)) {
-      await Emails.create({email: req.body.email})
-      return res.sendStatus(201)
+      await Emails.create({email: req.body.email});
+      return res.sendStatus(201);
     } else {
-      return res.sendStatus(400)
+      return res.sendStatus(400);
     }
   } 
   catch (error) {
-    return res.sendStatus(500)
+    return res.sendStatus(500);
   }
 }
 
 const getEmails = async (req, res) => {
   try{  
-    const emails = await Emails.findAll()
-    return res.status(200).json({ emails })
+    const emails = await Emails.findAll();
+    return res.status(200).json({ emails });
   }
   catch (error) {
-    return res.sendStatus(500)
+    return res.sendStatus(500);
   }
 }
 
@@ -73,19 +70,19 @@ const getEmails = async (req, res) => {
 // app
 //   .post('/contact/submit', verifyRecaptcha, submitContact)
 app
-  .post('/contact/submit', submitContact)
+  .post('/contact/submit', submitContact);
 
 // Email endpoints
 app
-  .post('/email/submit', verifyRecaptcha, submitEmail)
-app
-  .post('/email/unsubscribe', /* verifyRecaptcha, */ unsubscribeEmail)
-app
-  .get('/email/check', checkEmail)
+  .post('/email/submit', verifyRecaptcha, submitEmail);
+// app
+//   .post('/email/unsubscribe', /* verifyRecaptcha, */ unsubscribeEmail)
+// app
+//   .get('/email/check', checkEmail)
 
 // Filler endpoints
 app
-  .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}))
+  .get('/', (req, res) => res.sendFile('test.html', {root: __dirname}));
 
 // Testing recaptcha
 // app
@@ -93,9 +90,9 @@ app
 
 // Testing endpoints (expose DB)
 app
-  .get('/email', getEmails)
+  .get('/email', getEmails);
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 //////////////// AUXILIARY FUNCTIONS ////////////////
 
@@ -117,15 +114,11 @@ const validEmail = (email) => {
 }
 
 const sendConfirmation = async (recipient) => {
-  const html = await readFile('./templates/confirm.html', 'utf8');
-  const template = handlebars.compile(html);
-  const htmlToSend = template({ recipient: 'yeet' });
-
   const mailOptions = {
     from: 'noreply@nurlabs.com', // Sender address
     to: recipient,         // List of recipients
     subject: 'Your feedback was submitted!', // Subject line
-    html: htmlToSend, 
+    html: await readFile('./templates/confirm.html', 'utf8'), 
   };
 
   sendMail(mailOptions);
@@ -135,12 +128,12 @@ const sendNurlabsFeedback = async (body) => {
   const { email, subject, text } = body;
   const html = await readFile('./templates/feedback.html', 'utf8');
   const template = handlebars.compile(html);
-  const htmlToSend = template({ from: email, body: text });
+  const htmlToSend = template({ topic: subject, body: text });
 
   const mailOptions = {
     from: 'noreply@nurlabs.com', // Sender address
     to: 'noreply@nurlabs.com',         // List of recipients
-    subject: subject, // Subject line
+    subject: `FEEDBACK - From: ${email}`, // Subject line
     html: htmlToSend, 
   };
 
