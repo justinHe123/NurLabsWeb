@@ -2,12 +2,10 @@
 
 const express = require('express')
 const cors = require('cors');
-const nodemailer = require('nodemailer')
-const handlebars = require('handlebars')
-const fs = require('fs')
-const { promisify } = require('util')
 const { Emails } = require("./tables.js")
 const verifyRecaptcha = require("./recaptcha.js")
+const submitContact = require('./contact.js')
+const validEmail = require('./utils.js')
 
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://www.nurlabs.net/'],
@@ -21,24 +19,7 @@ const PORT = process.env.PORT || 5000
 app.use(cors(corsOptions));
 app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
-const readFile = promisify(fs.readFile);
-
 //////////////// ENDPOINT FUNCTIONS ////////////////
-
-const submitContact = (req, res) => {
-  try {
-    console.log(req.body);
-    const { email } = req.body;
-
-    if (!validEmail(email)) res.sendStatus(400);
-    sendConfirmation(email);
-    sendNurlabsFeedback(req.body);
-    res.sendStatus(200);
-  }
-  catch (error) {
-    return res.sendStatus(500);
-  }
-}
 
 const submitEmail = async (req, res) => {
   try {
@@ -116,57 +97,3 @@ app
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 //////////////// AUXILIARY FUNCTIONS ////////////////
-
-// TODO: temporary email transport using mailtrap
-let transport = nodemailer.createTransport({
-  host: 'smtp.mailtrap.io',
-  port: 2525,
-  auth: {
-    user: '03e042c4bb72af',
-    pass: '8c44c93d49411e',
-  }
-})
-
-const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
-
-const validEmail = (email) => {
-  return re.test(email);
-}
-
-const sendConfirmation = async (recipient) => {
-  const mailOptions = {
-    from: 'noreply@nurlabs.com', // Sender address
-    to: recipient,         // List of recipients
-    subject: 'Your feedback was submitted!', // Subject line
-    html: await readFile('./templates/confirm.html', 'utf8'), 
-  };
-
-  sendMail(mailOptions);
-}
-
-const sendNurlabsFeedback = async (body) => {
-  const { email, subject, text } = body;
-  const html = await readFile('./templates/feedback.html', 'utf8');
-  const template = handlebars.compile(html);
-  const htmlToSend = template({ topic: subject, body: text });
-
-  const mailOptions = {
-    from: 'noreply@nurlabs.com', // Sender address
-    to: 'noreply@nurlabs.com',         // List of recipients
-    subject: `FEEDBACK - From: ${email}`, // Subject line
-    html: htmlToSend, 
-  };
-
-  sendMail(mailOptions);
-}
-
-const sendMail = (opts) => {
-  transport.sendMail(opts, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(data);
-    }
-  })
-}
