@@ -29,11 +29,12 @@ const readFile = promisify(fs.readFile);
 const submitContact = (req, res) => {
   try {
     console.log(req.body);
-    const { email, subject, text} = req.body;
+    const { email, subject, text } = req.body;
 
     if (!validEmail(email)) res.sendStatus(400)
-    sendConfirmation(email)
+    sendConfirmation(email);
     // TODO: send feedback email to nurlabs
+    sendNurlabsFeedback(req.body);
     res.sendStatus(200)
 
   }
@@ -127,30 +128,27 @@ const sendConfirmation = async (recipient) => {
     html: htmlToSend, 
   };
 
-  // send confirmation email
-  transport.sendMail(mailOptions, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(data);
-    }
-  })
+  sendMail(mailOptions);
 }
 
-const sendNurlabsFeedback = async () => {
-  const html = await readFile('./templates/confirm.html', 'utf8');
+const sendNurlabsFeedback = async (body) => {
+  const { email, subject, text } = body;
+  const html = await readFile('./templates/feedback.html', 'utf8');
   const template = handlebars.compile(html);
-  const htmlToSend = template({ recipient: 'yeet' });
+  const htmlToSend = template({ from: email, body: text });
 
   const mailOptions = {
     from: 'noreply@nurlabs.com', // Sender address
     to: 'noreply@nurlabs.com',         // List of recipients
-    subject: 'Feedback from ', // Subject line
+    subject: subject, // Subject line
     html: htmlToSend, 
   };
 
-  // send confirmation email
-  transport.sendMail(mailOptions, (err, data) => {
+  sendMail(mailOptions);
+}
+
+const sendMail = (opts) => {
+  transport.sendMail(opts, (err, data) => {
     if (err) {
       console.log(err);
     } else {
