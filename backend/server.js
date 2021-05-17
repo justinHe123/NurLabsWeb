@@ -3,6 +3,7 @@
 const express = require('express')
 const cors = require('cors');
 const nodemailer = require('nodemailer')
+const handlebars = require('handlebars')
 const fs = require('fs')
 const { promisify } = require('util')
 const { Emails } = require("./tables.js")
@@ -17,7 +18,8 @@ const app = express()
 app.set('etag', false)
 const PORT = process.env.PORT || 5000
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json()) // bodyParser is depreciated, use this instead :o
 
 const readFile = promisify(fs.readFile);
@@ -42,35 +44,12 @@ const submitContact = (req, res) => {
 
 const submitEmail = async (req, res) => {
   try {
-    if(!validEmail(req.body.email)) return res.sendStatus(400)
-    await Emails.create({email: req.body.email})
-    return res.sendStatus(201)
-  } 
-  catch (error) {
-    return res.sendStatus(500)
-  }
-}
-
-const unsubscribeEmail = async (req, res) => {
-  try {
-    // TODO: Instead of doing this, use schema validation
-    if (!req.body.uuid || !req.body.email) return res.sendStatus(400)
-    const email = await Emails.findByPk(req.body.uuid)
-    if (email === null || email.email !== req.body.uuid) return res.sendStatus(404)
-    await email.destroy()
-    return res.sendStatus(200)
-  } 
-  catch (error) {
-    return res.sendStatus(500)
-  }
-}
-
-const checkEmail = async (req,res) => {
-  try{
-    if (!req.query.uuid || !req.query.email) return res.sendStatus(400)
-    const email = await Emails.findByPk(req.query.uuid)
-    if (email === null || email.email !== req.query.uuid) return res.sendStatus(404)
-    return res.sendStatus(200)
+    if (validEmail(req.body.email)) {
+      await Emails.create({email: req.body.email})
+      return res.sendStatus(201)
+    } else {
+      return res.sendStatus(400)
+    }
   } 
   catch (error) {
     return res.sendStatus(500)
@@ -90,8 +69,10 @@ const getEmails = async (req, res) => {
 //////////////// ENDPOINTS ////////////////
 
 // Contact endpoint
+// app
+//   .post('/contact/submit', verifyRecaptcha, submitContact)
 app
-  .post('/contact/submit', verifyRecaptcha, submitContact)
+  .post('/contact/submit', submitContact)
 
 // Email endpoints
 app
@@ -128,22 +109,48 @@ let transport = nodemailer.createTransport({
 })
 
 const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const NURLABS_EMAIL = 'noreply@nurlabs.com';
+const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
 
 const validEmail = (email) => {
   return re.test(email);
 }
 
 const sendConfirmation = async (recipient) => {
-  const message = {
-    from: NURLABS_EMAIL, // Sender address
+  const html = await readFile('./templates/confirm.html', 'utf8');
+  const template = handlebars.compile(html);
+  const htmlToSend = template({ recipient: 'yeet' });
+
+  const mailOptions = {
+    from: 'noreply@nurlabs.com', // Sender address
     to: recipient,         // List of recipients
     subject: 'Your feedback was submitted!', // Subject line
-    html: await readFile('./templates/confirm.html', 'utf8'), 
+    html: htmlToSend, 
   };
 
   // send confirmation email
-  transport.sendMail(message, (err, data) => {
+  transport.sendMail(mailOptions, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(data);
+    }
+  })
+}
+
+const sendNurlabsFeedback = async () => {
+  const html = await readFile('./templates/confirm.html', 'utf8');
+  const template = handlebars.compile(html);
+  const htmlToSend = template({ recipient: 'yeet' });
+
+  const mailOptions = {
+    from: 'noreply@nurlabs.com', // Sender address
+    to: 'noreply@nurlabs.com',         // List of recipients
+    subject: 'Feedback from ', // Subject line
+    html: htmlToSend, 
+  };
+
+  // send confirmation email
+  transport.sendMail(mailOptions, (err, data) => {
     if (err) {
       console.log(err);
     } else {
