@@ -5,16 +5,22 @@ const fs = require('fs')
 const validEmail = require('./utils.js')
 
 const readFile = promisify(fs.readFile);
+require('dotenv').config()
 const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
+const NURLABS_PASS = process.env.NURLABS_PASS;
 
 // TODO: temporary email transport using mailtrap
 let transport = nodemailer.createTransport({
-  host: 'smtp.mailtrap.io',
-  port: 2525,
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
   auth: {
-    user: '03e042c4bb72af',
-    pass: '8c44c93d49411e',
-  }
+    user: NURLABS_EMAIL,
+    pass: NURLABS_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false
+  } 
 })
 
 const submitContact = (req, res) => {
@@ -34,7 +40,7 @@ const submitContact = (req, res) => {
 
 const sendConfirmation = async (recipient) => {
   const mailOptions = {
-    from: 'noreply@nurlabs.com', // Sender address
+    from: NURLABS_EMAIL, // Sender address
     to: recipient,         // List of recipients
     subject: 'Your feedback was submitted!', // Subject line
     html: await readFile('./templates/confirm.html', 'utf8'), 
@@ -50,8 +56,8 @@ const sendNurlabsFeedback = async (body) => {
   const htmlToSend = template({ topic: subject, body: text });
 
   const mailOptions = {
-    from: 'noreply@nurlabs.com', // Sender address
-    to: 'noreply@nurlabs.com',         // List of recipients
+    from: NURLABS_EMAIL, // Sender address
+    to: NURLABS_EMAIL,         // List of recipients
     subject: `FEEDBACK - From: ${email}`, // Subject line
     html: htmlToSend, 
   };
