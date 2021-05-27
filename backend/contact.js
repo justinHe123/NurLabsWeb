@@ -9,7 +9,6 @@ require('dotenv').config()
 const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
 const NURLABS_PASS = process.env.NURLABS_PASS;
 
-// TODO: temporary email transport using mailtrap
 let transport = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
