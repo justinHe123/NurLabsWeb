@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer')
 require('dotenv').config()
 const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
 const NURLABS_PASS = process.env.NURLABS_PASS;
+const tempURL = 'https://www.gonurlabs.com'
 
 let transport = nodemailer.createTransport({
   service: 'gmail',
@@ -33,14 +34,12 @@ const submitEmail = async (req, res) => {
   }
 }
 
-const tempURL = 'http://localhost:3000'
-
 const sendConfirmation = (recipient, uuid) => {
   const mailOptions = {
     from: NURLABS_EMAIL, // Sender address
     to: recipient,         // List of recipients
     subject: 'You have been successfully subscribed!', // Subject line
-    html: `<div>Unsubscribe: <a href='${tempURL}/unsubscribe?email=${recipient}&key=${uuid}'>here</a></div>`, 
+    html: `<div><a href='${tempURL}/unsubscribe?email=${recipient}&key=${uuid}'>Unsubscribe</a></div>`, 
   };
 
   transport.sendMail(mailOptions, (err, data) => {
