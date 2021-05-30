@@ -44,7 +44,7 @@ app
 //   .post('/recaptcha', verifyRecaptcha)
 
 // Testing endpoints (expose DB)
-app
-  .get('/email', getEmails);
+// app
+//   .get('/email', getEmails);
 
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
