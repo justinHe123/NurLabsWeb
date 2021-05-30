@@ -31,7 +31,7 @@ app
 app
   .post('/email/submit', verifyRecaptcha, submitEmail);
 app
-  .post('/email/unsubscribe', /* verifyRecaptcha, */ unsubscribeEmail)
+  .post('/email/unsubscribe', verifyRecaptcha, unsubscribeEmail)
 app
   .get('/email/check', checkEmail)
 
