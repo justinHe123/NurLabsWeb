@@ -2,9 +2,21 @@ This is the web server for the NurLabs web site.
 
 This repository is not built for local deployment and is primarily intended for remote deployment with Heroku.
 
-If you want to test the server locally, run the following command with environmental variables set up:
+# Local Deployment
+
+If you want to test the server locally, install and set up the repository locally using the following commands:
+
+    git clone https://github.com/justinHe123/NurLabsWebServer.git
+
+    cd NurLabsWebServer
+
+    npm install
+
+Run the following command with environmental variables set up to start the server:
 
     heroku local
+
+# Remote Deployment
 
 See Heroku's Node.js startup guide for deploying the server to Heroku.
 
