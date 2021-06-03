@@ -6,7 +6,11 @@ const submitContact = require('./contact.js')
 const {submitEmail, unsubscribeEmail, checkEmail, getEmails} = require('./emails.js');
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://www.nurlabs.net/'],
+  origin: [
+    'http://localhost:3000', 
+    'https://www.nurlabs.net/', 
+    'https://www.gonurlabs.com'
+  ],
   optionsSuccessStatus: 200 
 }
 
@@ -40,7 +44,7 @@ app
 //   .post('/recaptcha', verifyRecaptcha)
 
 // Testing endpoints (expose DB)
-app
-  .get('/email', getEmails);
+// app
+//   .get('/email', getEmails);
 
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
