@@ -4,7 +4,7 @@ This repository is not built for local deployment and is primarily intended for 
 
 # Local Deployment
 
-If you want to test the server locally, install and set up the repository locally using the following commands:
+If you want to test the server locally, install and set up the repository locally using the following commands (Requires npm):
 
     git clone https://github.com/justinHe123/NurLabsWebServer.git
 
@@ -12,7 +12,7 @@ If you want to test the server locally, install and set up the repository locall
 
     npm install
 
-Run the following command with environmental variables set up to start the server:
+Run the following command with environmental variables set up to start the server (Requires heroku):
 
     heroku local
 
