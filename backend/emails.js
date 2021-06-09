@@ -5,8 +5,8 @@ const nodemailer = require('nodemailer')
 require('dotenv').config()
 const NURLABS_EMAIL = process.env.NURLABS_EMAIL;
 const NURLABS_PASS = process.env.NURLABS_PASS;
-// const tempURL = 'https://www.gonurlabs.com'
-const tempURL = 'http://localhost:3000'
+const tempURL = 'https://www.gonurlabs.com'
+// const tempURL = 'http://localhost:3000'
 
 let transport = nodemailer.createTransport({
   service: 'gmail',
